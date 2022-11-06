@@ -27,6 +27,19 @@ func DrawParticles(context *gg.Context, particles []particles.Particle) {
 }
 
 func DrawParticle(context *gg.Context, particle particles.Particle) {
+	alphaStep := 1.0 / (float32(particles.TrailSize) + 2.0)
+	alpha := alphaStep
+	r := float32(particle.Colour.R)
+	g := float32(particle.Colour.G)
+	b := float32(particle.Colour.B)
+
+	particle.Trail.DoReverse(func(position *particles.Point64) {
+		context.DrawCircle(position.X, position.Y, particle.Radius)
+		context.SetRGBA255(int(r*alpha), int(g*alpha), int(b*alpha), 255)
+		context.Fill()
+		alpha += alphaStep
+	})
+
 	context.DrawCircle(particle.Position.X, particle.Position.Y, particle.Radius)
 	context.SetColor(particle.Colour)
 	context.Fill()

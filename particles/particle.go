@@ -3,16 +3,19 @@ package particles
 import (
 	"image/color"
 	"math/rand"
+	"particles-go/circular"
 )
 
-var colours = []color.Color{
-	color.RGBA{R: 255, G: 255, B: 255, A: 255},
-	color.RGBA{R: 255, G: 0, B: 0, A: 255},
-	color.RGBA{R: 0, G: 255, B: 0, A: 255},
-	color.RGBA{R: 0, G: 0, B: 255, A: 255},
-	color.RGBA{R: 255, G: 255, B: 0, A: 255},
-	color.RGBA{R: 255, G: 0, B: 255, A: 255},
-	color.RGBA{R: 0, G: 255, B: 255, A: 255},
+var TrailSize = 10
+
+var colours = []color.RGBA{
+	{R: 255, G: 255, B: 255, A: 255},
+	{R: 255, G: 0, B: 0, A: 255},
+	{R: 0, G: 255, B: 0, A: 255},
+	{R: 0, G: 0, B: 255, A: 255},
+	{R: 255, G: 255, B: 0, A: 255},
+	{R: 255, G: 0, B: 255, A: 255},
+	{R: 0, G: 255, B: 255, A: 255},
 }
 
 type Particle struct {
@@ -20,7 +23,8 @@ type Particle struct {
 	Velocity Vector64
 	Mass     float64
 	Radius   float64
-	Colour   color.Color
+	Colour   color.RGBA
+	Trail    circular.Circular[Point64]
 }
 
 func RandomParticles(width float64, height float64, count int) []Particle {
@@ -34,11 +38,12 @@ func RandomParticles(width float64, height float64, count int) []Particle {
 }
 
 func RandomParticle(width float64, height float64) Particle {
+	position := Point64{
+		X: rand.Float64() * width,
+		Y: rand.Float64() * height,
+	}
 	return Particle{
-		Position: Point64{
-			X: rand.Float64() * width,
-			Y: rand.Float64() * height,
-		},
+		Position: position,
 		Velocity: Vector64{
 			X: 0,
 			Y: 0,
@@ -46,6 +51,7 @@ func RandomParticle(width float64, height float64) Particle {
 		Mass:   rand.Float64() * 5,
 		Radius: 5 + rand.Float64()*5,
 		Colour: colours[rand.Intn(len(colours))],
+		Trail:  circular.New[Point64](TrailSize, position),
 	}
 }
 
@@ -54,6 +60,8 @@ func UpdatePositions(particles []Particle) {
 		for g := f + 1; g < len(particles); g++ {
 			applyGravity(&particles[f], &particles[g])
 		}
+
+		particles[f].Trail.Push(particles[f].Position)
 		particles[f].Position.Move(particles[f].Velocity)
 	}
 }
