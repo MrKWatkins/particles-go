@@ -6,7 +6,7 @@ import (
 	"particles-go/circular"
 )
 
-var TrailSize = 10
+var TrailSize = 20
 
 var colours = []color.RGBA{
 	{R: 255, G: 255, B: 255, A: 255},

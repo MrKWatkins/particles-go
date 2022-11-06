@@ -27,6 +27,10 @@ func DrawParticles(context *gg.Context, particles []particles.Particle) {
 }
 
 func DrawParticle(context *gg.Context, particle particles.Particle) {
+	endRadius := particle.Radius / 2.0
+	radiusStep := (particle.Radius - endRadius) / float64(particles.TrailSize)
+	radius := endRadius
+
 	alphaStep := 1.0 / (float32(particles.TrailSize) + 2.0)
 	alpha := alphaStep
 	r := float32(particle.Colour.R)
@@ -34,9 +38,10 @@ func DrawParticle(context *gg.Context, particle particles.Particle) {
 	b := float32(particle.Colour.B)
 
 	particle.Trail.DoReverse(func(position *particles.Point64) {
-		context.DrawCircle(position.X, position.Y, particle.Radius)
+		context.DrawCircle(position.X, position.Y, radius)
 		context.SetRGBA255(int(r*alpha), int(g*alpha), int(b*alpha), 255)
 		context.Fill()
+		radius += radiusStep
 		alpha += alphaStep
 	})
 
